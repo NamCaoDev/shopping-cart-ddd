@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "478aa23cd78998a1ff0d696b892346e0",
+    "content-hash": "d2e7dc522c6e4d5f3c71b5989e941535",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -2484,6 +2484,67 @@
                 "source": "https://github.com/scheb/2fa-google-authenticator/tree/v7.14.0"
             },
             "time": "2026-01-24T13:53:55+00:00"
+        },
+        {
+            "name": "sofyco/kafka-messenger-bundle",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sofyco/kafka-messenger-bundle.git",
+                "reference": "8ef1364c183485910ee836a470c74e83a29351b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sofyco/kafka-messenger-bundle/zipball/8ef1364c183485910ee836a470c74e83a29351b9",
+                "reference": "8ef1364c183485910ee836a470c74e83a29351b9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-rdkafka": "*",
+                "php": "^8.3",
+                "symfony/framework-bundle": "^7.0",
+                "symfony/messenger": "^7.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^10.5"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Sofyco\\Bundle\\KafkaMessengerBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sofiia Korzhova",
+                    "email": "sofykorzhova@gmail.com"
+                }
+            ],
+            "description": "Symfony Kafka Messenger Bundle",
+            "homepage": "https://github.com/sofyco/kafka-messenger-bundle",
+            "keywords": [
+                "Messenger",
+                "bundle",
+                "kafka",
+                "php",
+                "symfony"
+            ],
+            "support": {
+                "issues": "https://github.com/sofyco/kafka-messenger-bundle/issues",
+                "source": "https://github.com/sofyco/kafka-messenger-bundle/tree/2.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sofyco",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-09-28T14:39:12+00:00"
         },
         {
             "name": "spomky-labs/otphp",

@@ -3,9 +3,9 @@
 namespace App\Configuration;
 
 use Ecotone\Dbal\Configuration\DbalConfiguration;
-use Ecotone\Dbal\DbalBackedMessageChannelBuilder;
 use Ecotone\Messaging\Attribute\ServiceContext;
 use Ecotone\SymfonyBundle\Config\SymfonyConnectionReference;
+use Ecotone\SymfonyBundle\Messenger\SymfonyMessengerMessageChannelBuilder;
 
 class EcotoneConfiguration
 {
@@ -25,9 +25,9 @@ class EcotoneConfiguration
     }
 
     #[ServiceContext]
-    public function asyncMessageChannel(): DbalBackedMessageChannelBuilder
+    public function asyncMessageChannel(): SymfonyMessengerMessageChannelBuilder
     {
-        // This tells Ecotone to use your database as a message queue
-        return DbalBackedMessageChannelBuilder::create('async_email_queue')->withAutoDeclare(false);
+        // Backed by the Kafka-backed Symfony Messenger transport of the same name
+        return SymfonyMessengerMessageChannelBuilder::create('async_email_queue');
     }
 }

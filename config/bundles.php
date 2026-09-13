@@ -10,4 +10,5 @@ return [
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
     Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
+    Sofyco\Bundle\KafkaMessengerBundle\KafkaMessengerBundle::class => ['all' => true],
 ];

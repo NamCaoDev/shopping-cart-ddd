@@ -63,6 +63,9 @@
             "config/routes/scheb_2fa.yaml"
         ]
     },
+    "sofyco/kafka-messenger-bundle": {
+        "version": "2.0.1"
+    },
     "symfony/console": {
         "version": "7.4",
         "recipe": {

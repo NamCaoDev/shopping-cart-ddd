@@ -5,9 +5,24 @@ framework:
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
-            async: 'doctrine://default'
+            # Consumed by Ecotone, not by messenger:consume — the transport name must
+            # match the channel name used in #[Asynchronous('async_email_queue')].
+            async_email_queue:
+                dsn: '%env(KAFKA_DSN)%'
+                options:
+                    # The bundle's consumer always subscribes to the topic named 'events',
+                    # so the producer has to publish there too.
+                    topicName: 'events'
+                    receiveTimeout: 10000
+                    commitAsync: true
+                    flushRetries: 3
+                    flushTimeout: 10000
+                    producer:
+                        enable.idempotence: 'true'
+                    consumer:
+                        group.id: 'symfony_ddd_email_worker'
+                        auto.offset.reset: 'earliest'
+                        enable.auto.commit: 'false'
 
         routing:
             # Route your messages to the transports

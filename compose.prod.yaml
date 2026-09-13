@@ -3,6 +3,8 @@ services:
     build:
       context: .
       target: prod
+    # Pinned so a prod build does not overwrite the dev image of the same default name.
+    image: symfony-ddd-php:prod
     container_name: php_prod
     restart: unless-stopped
     env_file:
@@ -10,17 +12,86 @@ services:
     networks:
       - symfony_network
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+
+  # Consumes async_email_queue off Kafka. Without this, queued mail is never delivered.
+  worker:
+    build:
+      context: .
+      target: prod
+    image: symfony-ddd-worker:prod
+    container_name: worker_prod
+    restart: unless-stopped
+    command: php bin/console ecotone:run async_email_queue --stopOnFailure=false
+    env_file:
+      - .env.prod
+    networks:
+      - symfony_network
+    depends_on:
+      database:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+
+  # The consumer errors out if the topic does not exist yet, so create it up front.
+  kafka-init:
+    image: apache/kafka:3.9.0
+    container_name: kafka_init_prod
+    restart: "no"
+    command: >
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092
+      --create --if-not-exists --topic events --partitions 1 --replication-factor 1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - symfony_network
+
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: kafka_prod
+    restart: unless-stopped
+    # Deliberately not published to the host - only reachable on symfony_network.
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - kafka_data_prod:/var/lib/kafka/data
+    networks:
+      - symfony_network
 
   nginx:
     build:
       context: .
       dockerfile: docker/nginx/Dockerfile.prod
+    image: symfony-ddd-nginx:prod
     container_name: nginx_prod
     restart: unless-stopped
+    # TLS terminates at the load balancer; this tier serves plain HTTP.
+    # Bound to loopback so only a same-host load balancer can reach it - SYMFONY_TRUSTED_PROXIES
+    # is REMOTE_ADDR, so anything able to connect directly could spoof X-Forwarded-For.
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:80:80"
     networks:
       - symfony_network
     depends_on:
@@ -44,7 +115,7 @@ services:
       retries: 5
       start_period: 60s
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
+      - db_data_prod:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
@@ -54,3 +125,4 @@ networks:
 
 volumes:
   db_data_prod:
+  kafka_data_prod:

@@ -17,6 +17,7 @@
         "scheb/2fa-bundle": "^7.14",
         "scheb/2fa-email": "^7.14",
         "scheb/2fa-google-authenticator": "^7.14",
+        "sofyco/kafka-messenger-bundle": "^2.0",
         "symfony/console": "7.4.*",
         "symfony/doctrine-messenger": "7.4.*",
         "symfony/dotenv": "7.4.*",

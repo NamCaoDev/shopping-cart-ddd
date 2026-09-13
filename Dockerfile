@@ -2,7 +2,7 @@
 # 1. BASE STAGE
 # Sets up PHP, system dependencies, and extensions used everywhere.
 # ==============================================================================
-FROM php:8.2-fpm-alpine AS base
+FROM php:8.3-fpm-alpine AS base
 
 # Install system dependencies required by Symfony
 RUN apk add --no-cache \
@@ -12,8 +12,13 @@ RUN apk add --no-cache \
     git \
     linux-headers \
     postgresql-dev \
+    librdkafka-dev \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_pgsql zip opcache
+    && docker-php-ext-install intl pdo pdo_pgsql zip opcache \
+    && apk add --no-cache --virtual .rdkafka-build-deps $PHPIZE_DEPS \
+    && pecl install rdkafka \
+    && docker-php-ext-enable rdkafka \
+    && apk del .rdkafka-build-deps
 
 WORKDIR /var/www/html
 
