@@ -1,0 +1,28 @@
+{# templates/user/verify_account.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Account</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+
+<h2>Verify Your Email Address</h2>
+<p>Thank you for registering! Please click the button below to verify your account:</p>
+
+<!-- Clickable Button Link -->
+<p style="margin: 20px 0;">
+    <a href="{{ verificationUrl }}"
+       style="background-color: #4F46E5; color: #ffffff; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+        Verify My Account
+    </a>
+</p>
+
+<!-- Fallback Text Link -->
+<p style="color: #666; font-size: 13px;">
+    If the button doesn't work, copy and paste this link into your browser:<br>
+    <a href="{{ verificationUrl }}">{{ verificationUrl }}</a>
+</p>
+
+</body>
+</html>

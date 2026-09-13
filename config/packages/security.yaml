@@ -1,0 +1,50 @@
+security:
+    password_hashers:
+        # Keep your existing user class config if it's there
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\User\Domain\Entity\User: 'auto'
+
+        # Add the 'common' configuration here:
+        common:
+            algorithm: auto
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\User\Domain\Entity\User
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: api_login
+                username_path: username # Accepts any string (email or username) sent under the "username" key
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            user_checker: App\User\Infrastructure\Security\UserChecker
+            login_throttling:
+                max_attempts: 5        # Built-in brute force protection!
+                interval: '15 minutes'
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+    access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/users/[^/]+/verify$, roles: PUBLIC_ACCESS, methods: [POST] }
+        # 2. 2FA Specific Routes (Require the temporary tokens)
+        # Covers both /verify and /verify-backup
+        - { path: ^/api/2fa/verify, roles: ROLE_2FA_PENDING }
+        # Reachable with a setup token, or by an already logged-in user adding a second factor
+        - { path: ^/api/2fa/(email/enable|google/generate|google/confirm)$, roles: [ROLE_2FA_SETUP, ROLE_USER] }
+
+        - { path: ^/api, roles: ROLE_USER }
